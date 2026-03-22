@@ -1,11 +1,11 @@
 fastapi>=0.110.0
 uvicorn[standard]>=0.29.0
-pybinding==0.9.5
+# pybinding is installed separately in Dockerfile (requires pybind11 pre-install trick)
 botorch==0.16.1
 gpytorch>=1.12
 torch>=2.0.0
 scipy>=1.13.0
-numpy>=1.26.0
+numpy>=2.0.0
 shapely>=2.0.0
 pointpats>=2.4.0
 pandas>=2.0.0
