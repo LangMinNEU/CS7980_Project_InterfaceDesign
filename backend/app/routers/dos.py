@@ -36,7 +36,7 @@ def compute_dos(req: DOSRequest) -> DOSResponse:
             density=True,
             sigma=req.sigma,
         )
-        integral = float(np.trapezoid(dos_counts, bin_edges[:-1]))
+        integral = float(np.trapz(dos_counts, bin_edges[:-1]))
         return DOSResponse(
             dos_counts=dos_counts.tolist(),
             bin_edges=bin_edges.tolist(),

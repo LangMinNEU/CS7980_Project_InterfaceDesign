@@ -68,7 +68,7 @@ def local_refinement(req: LocalRefinementRequest) -> LocalRefinementResponse:
     try:
         DOS_target = np.array(req.target_dos.dos_counts, dtype=float)
         bins_target = np.array(req.target_dos.bin_edges, dtype=float)
-        integral_target = float(np.trapezoid(DOS_target, bins_target[:-1]))
+        integral_target = float(np.trapz(DOS_target, bins_target[:-1]))
 
         raw_results = run_local_refinement(
             candidates=req.candidates,

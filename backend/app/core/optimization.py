@@ -169,7 +169,7 @@ def run_bo_loop(job_id: str, req, jobs: dict) -> None:
     try:
         DOS_target = np.array(req.target_dos.dos_counts, dtype=float)
         bins_target = np.array(req.target_dos.bin_edges, dtype=float)
-        integral_target = float(np.trapezoid(DOS_target, bins_target[:-1]))
+        integral_target = float(np.trapz(DOS_target, bins_target[:-1]))
 
         lower_bound = torch.tensor(
             [req.bounds.t_a[0], req.bounds.t_b[0]], **TKWARGS

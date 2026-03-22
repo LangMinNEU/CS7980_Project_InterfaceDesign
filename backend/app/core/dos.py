@@ -133,8 +133,8 @@ def DOS_KDE_Wasserstein_distance(bins, DOS_target, DOS_current, bw_method=None, 
     grid = np.linspace(xmin, xmax, grid_points)
     density_t = kde_target(grid)
     density_c = kde_current(grid)
-    area_t = np.trapezoid(density_t, x=grid)
-    area_c = np.trapezoid(density_c, x=grid)
+    area_t = np.trapz(density_t, x=grid)
+    area_c = np.trapz(density_c, x=grid)
     if area_t > 0:
         density_t = density_t / area_t
     if area_c > 0:
@@ -173,8 +173,8 @@ def DOS_KLDivergence_distance(DOS_target, DOS_current):
 
 def DOS_Helinger_distance(DOS_target, DOS_current, bins):
     """Hellinger distance between two DOS distributions (bounded [0, 1])."""
-    DOS_target = DOS_target / np.trapezoid(DOS_target, bins[:-1])
+    DOS_target = DOS_target / np.trapz(DOS_target, bins[:-1])
     if np.sum(DOS_current) == 0:
         return 1.0
-    DOS_current = DOS_current / np.trapezoid(DOS_current, bins[:-1])
-    return float(np.sqrt(1 - np.trapezoid(np.sqrt(DOS_target * DOS_current), bins[:-1])))
+    DOS_current = DOS_current / np.trapz(DOS_current, bins[:-1])
+    return float(np.sqrt(1 - np.trapz(np.sqrt(DOS_target * DOS_current), bins[:-1])))
