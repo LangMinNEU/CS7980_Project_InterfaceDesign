@@ -1,8 +1,7 @@
-FROM python:3.11-slim
+FROM continuumio/miniconda3:latest
 
-RUN apt-get update && apt-get install -y \
-    build-essential python3-dev gfortran \
-    && rm -rf /var/lib/apt/lists/*
+RUN conda install -y -c conda-forge cmake numpy scipy matplotlib && \
+    conda clean -afy
 
 WORKDIR /app
 COPY requirements.txt .
