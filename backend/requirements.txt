@@ -1,9 +1,9 @@
 fastapi>=0.110.0
 uvicorn[standard]>=0.29.0
 pybinding==0.9.5
-botorch>=0.17.2
-gpytorch>=1.15.2
-torch>=2.10.0
+botorch==0.16.1
+gpytorch>=1.12
+torch>=2.0.0
 scipy>=1.13.0
 numpy>=1.26.0
 shapely>=2.0.0
