@@ -1,6 +1,6 @@
 fastapi>=0.110.0
 uvicorn[standard]>=0.29.0
-# pybinding is installed separately in Dockerfile (requires pybind11 pre-install trick)
+# pybinding is installed via conda-forge in Dockerfile (PyPI build fails on Python 3.10+)
 botorch==0.16.1
 gpytorch>=1.12
 torch>=2.0.0
