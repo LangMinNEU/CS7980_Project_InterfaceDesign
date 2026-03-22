@@ -1,9 +1,10 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { PlotParams } from "react-plotly.js";
 import type { JobStatus } from "@/types";
 
-const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
+const Plot = dynamic<PlotParams>(() => import("react-plotly.js"), { ssr: false });
 
 interface Props {
   jobStatus: JobStatus | null;
@@ -97,8 +98,8 @@ export default function BOProgress({ jobStatus }: Props) {
               ]}
               layout={{
                 title: { text: "BO Convergence", font: { size: 14 } },
-                xaxis: { title: "Evaluation #" },
-                yaxis: { title: "Best loss (Wasserstein)" },
+                xaxis: { title: { text: "Evaluation #" } },
+                yaxis: { title: { text: "Best loss (Wasserstein)" } },
                 margin: { t: 36, b: 50, l: 60, r: 20 },
                 height: 420,
                 autosize: true,
@@ -120,15 +121,15 @@ export default function BOProgress({ jobStatus }: Props) {
                     colorscale: "Viridis",
                     reversescale: true,
                     size: 7,
-                    colorbar: { title: "Loss", thickness: 14 },
+                    colorbar: { title: { text: "Loss" }, thickness: 14 },
                   },
                   name: "Evaluated points",
                 },
               ]}
               layout={{
                 title: { text: "Parameter Space Exploration", font: { size: 14 } },
-                xaxis: { title: "t_a" },
-                yaxis: { title: "t_b" },
+                xaxis: { title: { text: "t_a" } },
+                yaxis: { title: { text: "t_b" } },
                 margin: { t: 36, b: 50, l: 55, r: 60 },
                 height: 420,
                 autosize: true,

@@ -1,8 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { PlotParams } from "react-plotly.js";
 
-const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
+const Plot = dynamic<PlotParams>(() => import("react-plotly.js"), { ssr: false });
 
 interface DOSCurve {
   dos_counts: number[];
@@ -54,8 +55,8 @@ export default function DOSPlot({
         data={data}
         layout={{
           title: { text: title, font: { size: 15 } },
-          xaxis: { title: xLabel },
-          yaxis: { title: yLabel },
+          xaxis: { title: { text: xLabel } },
+          yaxis: { title: { text: yLabel } },
           margin: { t: 40, b: 50, l: 55, r: 20 },
           legend: { x: 0.01, y: 0.99 },
           height,
