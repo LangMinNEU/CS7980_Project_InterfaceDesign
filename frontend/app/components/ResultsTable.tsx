@@ -94,14 +94,24 @@ export default function ResultsTable({
       </div>
 
       {!refinedResults && (
-        <button
-          onClick={() => onRunRefinement(candidates)}
-          disabled={refining || jobStatus?.status !== "complete"}
-          className="mt-2 bg-purple-600 text-white rounded-lg px-5 py-2 font-semibold
-                     hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
-        >
-          {refining ? "Refining…" : "Run Local Refinement (COBYLA)"}
-        </button>
+        <div className="space-y-2">
+          <button
+            onClick={() => onRunRefinement(candidates)}
+            disabled={refining || jobStatus?.status !== "complete"}
+            className="mt-2 bg-purple-600 text-white rounded-lg px-5 py-2 font-semibold
+                       hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          >
+            {refining ? "Refining…" : "Run Local Refinement (COBYLA)"}
+          </button>
+          {refining && (
+            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div className="h-2 w-2/5 rounded-full bg-purple-500 animate-indeterminate" />
+            </div>
+          )}
+          {refining && (
+            <p className="text-xs text-gray-400">Running COBYLA refinement on {candidates.length} candidates…</p>
+          )}
+        </div>
       )}
     </div>
   );

@@ -17,6 +17,7 @@ interface Props {
   title?: string;
   xLabel?: string;
   yLabel?: string;
+  height?: number;
 }
 
 function binCenters(edges: number[]): number[] {
@@ -28,6 +29,7 @@ export default function DOSPlot({
   title = "Density of States",
   xLabel = "Energy (eV)",
   yLabel = "DOS (a.u.)",
+  height = 320,
 }: Props) {
   if (curves.length === 0) {
     return (
@@ -56,7 +58,7 @@ export default function DOSPlot({
           yaxis: { title: yLabel },
           margin: { t: 40, b: 50, l: 55, r: 20 },
           legend: { x: 0.01, y: 0.99 },
-          height: 320,
+          height,
           autosize: true,
         }}
         config={{ responsive: true, displayModeBar: false }}

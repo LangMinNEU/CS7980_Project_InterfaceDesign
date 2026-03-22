@@ -142,34 +142,8 @@ export default function Home() {
     }
   }
 
-  // ── DOS plot curves ───────────────────────────────────────────────────────
-  const dosCurves = [];
-  if (targetDOSParams) {
-    dosCurves.push({
-      dos_counts: targetDOSParams.dos_counts,
-      bin_edges: targetDOSParams.bin_edges,
-      label: "Target DOS",
-      color: "blue",
-      dash: "dash" as const,
-    });
-  }
-
-  // Best BO candidate DOS (first top candidate's DOS is not directly available
-  // until local refinement, but we show refined DOS if available)
-  if (refinedResults && refinedResults.length > 0) {
-    refinedResults.forEach((r, i) => {
-      dosCurves.push({
-        dos_counts: r.dos_counts,
-        bin_edges: r.dos_bin_edges,
-        label: `Refined rank ${i + 1}`,
-        color: i === 0 ? "red" : `hsl(${(i * 60 + 10) % 360},70%,45%)`,
-        dash: "solid" as const,
-      });
-    });
-  }
-
   return (
-    <main className="max-w-5xl mx-auto px-4 py-8 space-y-10">
+    <main className="max-w-7xl mx-auto px-4 py-8 space-y-10">
       <header>
         <h1 className="text-2xl font-bold">Kagome Lattice Bayesian Optimization</h1>
         <p className="mt-1 text-gray-500 text-sm">
@@ -180,7 +154,7 @@ export default function Home() {
       {/* ── Section 1: Target DOS ─────────────────────────────────────────── */}
       <section>
         <h2 className="text-xl font-semibold mb-3">1 — Target DOS</h2>
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-[5fr_7fr] gap-6">
           <ParameterForm onCompute={handleComputeDOS} loading={dosLoading} />
           <div className="flex flex-col gap-3">
             {dosError && (
@@ -202,12 +176,13 @@ export default function Home() {
                         bin_edges: targetDOSParams.bin_edges,
                         label: "Target DOS",
                         color: "#2563eb",
-                        dash: "dash",
+                        dash: "solid",
                       },
                     ]
                   : []
               }
               title="Target DOS Preview"
+              height={420}
             />
           </div>
         </div>
@@ -313,12 +288,32 @@ export default function Home() {
               refining={refining}
             />
             {refinedResults && (
-              <DOSPlot
-                curves={dosCurves}
-                title="Target vs Refined DOS"
-                xLabel="Energy (eV)"
-                yLabel="DOS (a.u.)"
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {refinedResults.map((r, i) => (
+                  <DOSPlot
+                    key={i}
+                    curves={[
+                      {
+                        dos_counts: targetDOSParams!.dos_counts,
+                        bin_edges: targetDOSParams!.bin_edges,
+                        label: "Target DOS",
+                        color: "#2563eb",
+                        dash: "solid",
+                      },
+                      {
+                        dos_counts: r.dos_counts,
+                        bin_edges: r.dos_bin_edges,
+                        label: `Refined rank ${i + 1}`,
+                        color: ["#ef4444", "#f97316", "#eab308", "#ec4899", "#84cc16"][i] ?? "#ef4444",
+                        dash: "solid",
+                      },
+                    ]}
+                    title={`Rank ${i + 1} — Target vs Refined`}
+                    xLabel="Energy (eV)"
+                    yLabel="DOS (a.u.)"
+                  />
+                ))}
+              </div>
             )}
           </div>
         </section>

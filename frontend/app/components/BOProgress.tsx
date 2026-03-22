@@ -80,65 +80,63 @@ export default function BOProgress({ jobStatus }: Props) {
         )}
       </div>
 
-      {/* Running best loss chart */}
-      {runningBest.length > 0 && (
-        <div className="bg-white rounded-xl shadow p-4">
-          <Plot
-            data={[
-              {
-                x: iterLabels,
-                y: runningBest,
-                type: "scatter",
-                mode: "lines",
-                name: "Running best loss",
-                line: { color: "#2563eb", width: 2 },
-              },
-            ]}
-            layout={{
-              title: { text: "BO Convergence", font: { size: 14 } },
-              xaxis: { title: "Evaluation #" },
-              yaxis: { title: "Best loss (Wasserstein)" },
-              margin: { t: 36, b: 50, l: 60, r: 20 },
-              height: 280,
-              autosize: true,
-            }}
-            config={{ responsive: true, displayModeBar: false }}
-            style={{ width: "100%" }}
-          />
-        </div>
-      )}
-
-      {/* 2-D scatter of explored (t_a, t_b) space */}
-      {train_x && train_obj && train_x.length > 0 && (
-        <div className="bg-white rounded-xl shadow p-4">
-          <Plot
-            data={[
-              {
-                x: train_x.map((p) => p[0]),
-                y: train_x.map((p) => p[1]),
-                mode: "markers",
-                type: "scatter",
-                marker: {
-                  color: train_obj.map((v) => -v),
-                  colorscale: "Viridis",
-                  reversescale: true,
-                  size: 7,
-                  colorbar: { title: "Loss", thickness: 14 },
+      {/* Running best loss chart + 2-D scatter side by side */}
+      {runningBest.length > 0 && train_x && train_obj && train_x.length > 0 && (
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-white rounded-xl shadow p-4">
+            <Plot
+              data={[
+                {
+                  x: iterLabels,
+                  y: runningBest,
+                  type: "scatter",
+                  mode: "lines",
+                  name: "Running best loss",
+                  line: { color: "#2563eb", width: 2 },
                 },
-                name: "Evaluated points",
-              },
-            ]}
-            layout={{
-              title: { text: "Parameter Space Exploration", font: { size: 14 } },
-              xaxis: { title: "t_a" },
-              yaxis: { title: "t_b" },
-              margin: { t: 36, b: 50, l: 55, r: 20 },
-              height: 320,
-              autosize: true,
-            }}
-            config={{ responsive: true, displayModeBar: false }}
-            style={{ width: "100%" }}
-          />
+              ]}
+              layout={{
+                title: { text: "BO Convergence", font: { size: 14 } },
+                xaxis: { title: "Evaluation #" },
+                yaxis: { title: "Best loss (Wasserstein)" },
+                margin: { t: 36, b: 50, l: 60, r: 20 },
+                height: 420,
+                autosize: true,
+              }}
+              config={{ responsive: true, displayModeBar: false }}
+              style={{ width: "100%" }}
+            />
+          </div>
+          <div className="bg-white rounded-xl shadow p-4">
+            <Plot
+              data={[
+                {
+                  x: train_x.map((p) => p[0]),
+                  y: train_x.map((p) => p[1]),
+                  mode: "markers",
+                  type: "scatter",
+                  marker: {
+                    color: train_obj.map((v) => -v),
+                    colorscale: "Viridis",
+                    reversescale: true,
+                    size: 7,
+                    colorbar: { title: "Loss", thickness: 14 },
+                  },
+                  name: "Evaluated points",
+                },
+              ]}
+              layout={{
+                title: { text: "Parameter Space Exploration", font: { size: 14 } },
+                xaxis: { title: "t_a" },
+                yaxis: { title: "t_b" },
+                margin: { t: 36, b: 50, l: 55, r: 60 },
+                height: 420,
+                autosize: true,
+              }}
+              config={{ responsive: true, displayModeBar: false }}
+              style={{ width: "100%" }}
+            />
+          </div>
         </div>
       )}
     </div>
