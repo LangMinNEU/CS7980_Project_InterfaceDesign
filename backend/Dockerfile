@@ -1,12 +1,16 @@
-FROM continuumio/miniconda3:latest
+FROM python:3.11-slim
 
-RUN conda install -y -c conda-forge cmake numpy scipy matplotlib && \
-    conda clean -afy
+RUN apt-get update && apt-get install -y \
+    build-essential python3-dev gfortran \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY requirements.txt .
+
+# CPU-only PyTorch to keep image size small
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD sh -c "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"
