@@ -106,9 +106,14 @@ Then redeploy the backend (or Railway will pick up the variable change automatic
 
 ### Backend
 
+> **Prerequisites:** pybinding builds from source, so you need a C++ compiler, gfortran, and cmake.
+> - macOS: `xcode-select --install && brew install cmake gfortran`
+> - Linux: `apt install build-essential gfortran cmake`
+
 ```bash
 cd backend
 cp .env.example .env          # edit CORS_ORIGINS=http://localhost:3000
+pip install torch --index-url https://download.pytorch.org/whl/cpu
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 # API running at http://localhost:8000
