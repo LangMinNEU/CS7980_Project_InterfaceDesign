@@ -34,3 +34,10 @@ class RefinedResult(BaseModel):
 
 class LocalRefinementResponse(BaseModel):
     results: list[RefinedResult]
+
+
+class RefinementJobStatusResponse(BaseModel):
+    job_id: str
+    status: str
+    results: Optional[list[RefinedResult]] = None
+    error: Optional[str] = None

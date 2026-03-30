@@ -5,7 +5,7 @@ import type {
   StartOptimizationResponse,
   JobStatus,
   LocalRefinementRequest,
-  LocalRefinementResponse,
+  RefinementJobStatus,
 } from "@/types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -46,8 +46,12 @@ export async function pollJob(jobId: string): Promise<JobStatus> {
   return get<JobStatus>(`/api/jobs/${jobId}`);
 }
 
-export async function runLocalRefinement(
+export async function startLocalRefinement(
   req: LocalRefinementRequest
-): Promise<LocalRefinementResponse> {
-  return post<LocalRefinementResponse>("/api/run-local-refinement", req);
+): Promise<StartOptimizationResponse> {
+  return post<StartOptimizationResponse>("/api/run-local-refinement", req);
+}
+
+export async function pollRefinementJob(jobId: string): Promise<RefinementJobStatus> {
+  return get<RefinementJobStatus>(`/api/refinement-jobs/${jobId}`);
 }
