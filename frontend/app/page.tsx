@@ -9,7 +9,8 @@ import {
   computeDOS,
   startOptimization,
   pollJob,
-  runLocalRefinement,
+  startLocalRefinement,
+  pollRefinementJob,
 } from "@/lib/api";
 import type {
   DOSRequest,
@@ -42,6 +43,7 @@ export default function Home() {
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
   const [jobStatus, setJobStatus] = useState<JobStatus | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const refinePollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Section 4 — Refinement & final results
   const [refinedResults, setRefinedResults] = useState<RefinedResult[] | null>(null);
@@ -57,7 +59,10 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    return () => stopPolling();
+    return () => {
+      stopPolling();
+      if (refinePollRef.current) clearInterval(refinePollRef.current);
+    };
   }, [stopPolling]);
 
   // ── Section 1: Compute target DOS ────────────────────────────────────────
@@ -126,18 +131,35 @@ export default function Home() {
     if (!targetDOSParams) return;
     setRefining(true);
     setRefineError(null);
+    if (refinePollRef.current) clearInterval(refinePollRef.current);
     try {
-      const res = await runLocalRefinement({
+      const { job_id } = await startLocalRefinement({
         candidates,
         target_dos: {
           dos_counts: targetDOSParams.dos_counts,
           bin_edges: targetDOSParams.bin_edges,
         },
       });
-      setRefinedResults(res.results);
+      refinePollRef.current = setInterval(async () => {
+        try {
+          const status = await pollRefinementJob(job_id);
+          if (status.status === "complete" && status.results) {
+            setRefinedResults(status.results);
+            setRefining(false);
+            clearInterval(refinePollRef.current!);
+            refinePollRef.current = null;
+          } else if (status.status === "failed") {
+            setRefineError(status.error ?? "Refinement failed");
+            setRefining(false);
+            clearInterval(refinePollRef.current!);
+            refinePollRef.current = null;
+          }
+        } catch {
+          // transient network errors — keep polling
+        }
+      }, 2000);
     } catch (err) {
       setRefineError(String(err));
-    } finally {
       setRefining(false);
     }
   }

@@ -9,6 +9,7 @@ from app.schemas.responses import (
     JobStatusResponse,
     LocalRefinementResponse,
     RefinedResult,
+    RefinementJobStatusResponse,
 )
 
 router = APIRouter()
@@ -16,6 +17,7 @@ router = APIRouter()
 # In-memory job store (acceptable for single-user research tool).
 # Keys: job_id (str), Values: dict with job state.
 jobs: dict[str, dict] = {}
+refinement_jobs: dict[str, dict] = {}
 
 
 @router.post("/run-optimization", response_model=StartJobResponse)
@@ -62,14 +64,12 @@ def get_job_status(job_id: str) -> JobStatusResponse:
     )
 
 
-@router.post("/run-local-refinement", response_model=LocalRefinementResponse)
-def local_refinement(req: LocalRefinementRequest) -> LocalRefinementResponse:
-    """Run COBYLA local refinement on a list of candidate parameter points."""
+def _run_refinement_bg(job_id: str, req: LocalRefinementRequest, store: dict) -> None:
+    """Background worker for local refinement."""
     try:
         DOS_target = np.array(req.target_dos.dos_counts, dtype=float)
         bins_target = np.array(req.target_dos.bin_edges, dtype=float)
         integral_target = float(np.trapezoid(DOS_target, bins_target[:-1]))
-
         raw_results = run_local_refinement(
             candidates=req.candidates,
             DOS_target=DOS_target,
@@ -77,8 +77,37 @@ def local_refinement(req: LocalRefinementRequest) -> LocalRefinementResponse:
             lower_bound=[-0.5, -0.5],
             upper_bound=[0.5, 0.5],
         )
-        return LocalRefinementResponse(
-            results=[RefinedResult(**r) for r in raw_results]
-        )
+        store[job_id]["results"] = [RefinedResult(**r) for r in raw_results]
+        store[job_id]["status"] = "complete"
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+        store[job_id]["status"] = "failed"
+        store[job_id]["error"] = str(exc)
+
+
+@router.post("/run-local-refinement", response_model=StartJobResponse)
+def start_local_refinement(
+    req: LocalRefinementRequest,
+    background_tasks: BackgroundTasks,
+) -> StartJobResponse:
+    """Start COBYLA local refinement asynchronously.
+
+    Returns a job_id that can be polled via GET /api/refinement-jobs/{job_id}.
+    """
+    job_id = str(uuid4())
+    refinement_jobs[job_id] = {"status": "running", "results": None, "error": None}
+    background_tasks.add_task(_run_refinement_bg, job_id, req, refinement_jobs)
+    return StartJobResponse(job_id=job_id, status="running")
+
+
+@router.get("/refinement-jobs/{job_id}", response_model=RefinementJobStatusResponse)
+def get_refinement_status(job_id: str) -> RefinementJobStatusResponse:
+    """Poll the status and results of a running or completed refinement job."""
+    if job_id not in refinement_jobs:
+        raise HTTPException(status_code=404, detail=f"Refinement job '{job_id}' not found.")
+    state = refinement_jobs[job_id]
+    return RefinementJobStatusResponse(
+        job_id=job_id,
+        status=state["status"],
+        results=state.get("results"),
+        error=state.get("error"),
+    )

@@ -68,3 +68,10 @@ export interface RefinedResult {
 export interface LocalRefinementResponse {
   results: RefinedResult[];
 }
+
+export interface RefinementJobStatus {
+  job_id: string;
+  status: "running" | "complete" | "failed";
+  results?: RefinedResult[];
+  error?: string;
+}
